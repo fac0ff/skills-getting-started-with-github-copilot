@@ -26,22 +26,36 @@ activities = {
         "description": "Learn strategies and compete in chess tournaments",
         "schedule": "Fridays, 3:30 PM - 5:00 PM",
         "max_participants": 12,
-        "participants": ["michael@mergington.edu", "daniel@mergington.edu"]
+        "participants": []
     },
     "Programming Class": {
         "description": "Learn programming fundamentals and build software projects",
         "schedule": "Tuesdays and Thursdays, 3:30 PM - 4:30 PM",
         "max_participants": 20,
-        "participants": ["emma@mergington.edu", "sophia@mergington.edu"]
+        "participants": []
     },
     "Gym Class": {
         "description": "Physical education and sports activities",
         "schedule": "Mondays, Wednesdays, Fridays, 2:00 PM - 3:00 PM",
         "max_participants": 30,
-        "participants": ["john@mergington.edu", "olivia@mergington.edu"]
+        "participants": []
     }
 }
 
+# Load participants from CSV files
+var_dir = os.path.join(current_dir, "var")
+os.makedirs(var_dir, exist_ok=True)
+
+for activity_name, activity in activities.items():
+    csv_file = f"{activity_name.replace(' ', '_').lower()}_participants.csv"
+    csv_path = os.path.join(var_dir, csv_file)
+    if os.path.exists(csv_path):
+        with open(csv_path, mode="r", newline="") as file:
+            reader = csv.reader(file)
+            participants = [row[0] for row in reader if row]  # Load participants
+            activity["participants"].extend(participants)
+            # Decrease max_participants by the number of already enrolled participants
+            activity["max_participants"] -= len(participants)
 
 @app.get("/")
 def root():
