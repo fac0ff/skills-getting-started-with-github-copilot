@@ -48,10 +48,14 @@ var_dir = os.path.join(current_dir, "var")
 # Ensure the "var" directory exists
 os.makedirs(var_dir, exist_ok=True)
 
+def get_csv_path(activity_name: str) -> str:
+    """Generate the CSV file path for a given activity name."""
+    csv_file = f"{activity_name.replace(' ', '_').lower()}_participants.csv"
+    return os.path.join(var_dir, csv_file)
+
 # Load participants from CSV files
 for activity_name, activity in activities.items():
-    csv_file = f"{activity_name.replace(' ', '_').lower()}_participants.csv"
-    csv_path = os.path.join(var_dir, csv_file)
+    csv_path = get_csv_path(activity_name)
     if os.path.exists(csv_path):
         with open(csv_path, mode="r", newline="") as file:
             reader = csv.reader(file)
@@ -88,8 +92,7 @@ def signup_for_activity(activity_name: str, email: str):
     activity["participants"].append(email)
 
     # Append the new participant to a CSV file in the "var" directory
-    csv_file = f"{activity_name.replace(' ', '_').lower()}_participants.csv"
-    csv_path = os.path.join(var_dir, csv_file)
+    csv_path = get_csv_path(activity_name)
     with open(csv_path, mode="a", newline="") as file:
         writer = csv.writer(file)
         writer.writerow([email])  # Append only the new participant
