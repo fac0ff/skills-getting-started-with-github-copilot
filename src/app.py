@@ -72,7 +72,12 @@ def root():
 
 @app.get("/activities")
 def get_activities():
-    return activities
+    return {
+        activity_name: {
+            key: value for key, value in details.items() if key != "participants"
+        }
+        for activity_name, details in activities.items()
+    }
 
 @app.post("/activities/{activity_name}/signup")
 def signup_for_activity(activity_name: str, email: str, request: Request):
@@ -90,6 +95,7 @@ def signup_for_activity(activity_name: str, email: str, request: Request):
 
     # Add student
     activity["participants"].append(email)
+    activity["max_participants"] -= 1
 
     # Get the current timestamp
     timestamp = datetime.now().isoformat()
