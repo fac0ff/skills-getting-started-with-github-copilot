@@ -11,6 +11,8 @@ from fastapi.responses import RedirectResponse
 import os
 from pathlib import Path
 import csv
+from datetime import datetime
+from fastapi import Request
 
 app = FastAPI(title="Mergington High School API",
               description="API for viewing and signing up for extracurricular activities")
@@ -73,7 +75,7 @@ def get_activities():
     return activities
 
 @app.post("/activities/{activity_name}/signup")
-def signup_for_activity(activity_name: str, email: str):
+def signup_for_activity(activity_name: str, email: str, request: Request):
     """Sign up a student for an activity"""
     # Validate activity exists
     if activity_name not in activities:
@@ -89,10 +91,16 @@ def signup_for_activity(activity_name: str, email: str):
     # Add student
     activity["participants"].append(email)
 
-    # Append the new participant to a CSV file in the "var" directory
+    # Get the current timestamp
+    timestamp = datetime.now().isoformat()
+
+    # Get the client's IP address
+    client_ip = request.client.host if request.client else "unknown"
+
+    # Append the new participant with timestamp and IP address
     csv_path = get_csv_path(activity_name)
     with open(csv_path, mode="a", newline="") as file:
         writer = csv.writer(file)
-        writer.writerow([email])  # Append only the new participant
+        writer.writerow([email, timestamp, client_ip])
 
     return {"message": f"Signed up {email} for {activity_name}"}
