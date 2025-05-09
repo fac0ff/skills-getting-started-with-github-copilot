@@ -42,10 +42,13 @@ activities = {
     }
 }
 
-# Load participants from CSV files
+# Folder for CSV files
 var_dir = os.path.join(current_dir, "var")
+
+# Ensure the "var" directory exists
 os.makedirs(var_dir, exist_ok=True)
 
+# Load participants from CSV files
 for activity_name, activity in activities.items():
     csv_file = f"{activity_name.replace(' ', '_').lower()}_participants.csv"
     csv_path = os.path.join(var_dir, csv_file)
@@ -83,10 +86,6 @@ def signup_for_activity(activity_name: str, email: str):
 
     # Add student
     activity["participants"].append(email)
-
-    # Ensure the "var" directory exists
-    var_dir = os.path.join(current_dir, "var")
-    os.makedirs(var_dir, exist_ok=True)
 
     # Append the new participant to a CSV file in the "var" directory
     csv_file = f"{activity_name.replace(' ', '_').lower()}_participants.csv"
