@@ -10,6 +10,7 @@ from fastapi.staticfiles import StaticFiles
 from fastapi.responses import RedirectResponse
 import os
 from pathlib import Path
+import csv
 
 app = FastAPI(title="Mergington High School API",
               description="API for viewing and signing up for extracurricular activities")
@@ -59,9 +60,25 @@ def signup_for_activity(activity_name: str, email: str):
     if activity_name not in activities:
         raise HTTPException(status_code=404, detail="Activity not found")
 
-    # Get the specificy activity
+    # Get the specific activity
     activity = activities[activity_name]
+
+    # Check if the participant is already signed up
+    if email in activity["participants"]:
+        raise HTTPException(status_code=400, detail="Participant already signed up")
 
     # Add student
     activity["participants"].append(email)
+
+    # Ensure the "var" directory exists
+    var_dir = os.path.join(current_dir, "var")
+    os.makedirs(var_dir, exist_ok=True)
+
+    # Append the new participant to a CSV file in the "var" directory
+    csv_file = f"{activity_name.replace(' ', '_').lower()}_participants.csv"
+    csv_path = os.path.join(var_dir, csv_file)
+    with open(csv_path, mode="a", newline="") as file:
+        writer = csv.writer(file)
+        writer.writerow([email])  # Append only the new participant
+
     return {"message": f"Signed up {email} for {activity_name}"}
